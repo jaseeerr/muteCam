@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import toast, { Toaster } from 'react-hot-toast'
 import { SOCKET_URL } from '../../config/urls';
 import io from 'socket.io-client'
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane, faFaceSmile, faPhone } from '@fortawesome/free-solid-svg-icons';
 import Picker from '@emoji-mart/react'
@@ -10,7 +10,7 @@ import ReactPlayer from "react-player"
 import ScrollToBottom from "react-scroll-to-bottom"
 import peer from '../../services/peer';
 const socket = io.connect(SOCKET_URL)
-
+const img = "https://th.bing.com/th/id/OIG.lVXjWwlHyIo4QdjnC1YE"
 const Chat = () => {
 
 
@@ -91,7 +91,7 @@ const Chat = () => {
     useEffect(() => {
 
         socket.on('user_online', (data) => {
-          
+
             setList((prevList) => {
                 if (!prevList.includes(data)) {
                     return [...prevList, data];
@@ -138,7 +138,7 @@ const Chat = () => {
         <>
             <Toaster />
             {clear ?
-                <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white">
+                <div className="flex justify-center items-center min-h-screen overflow-y-auto bg-gray-900 text-white">
 
                     <div className="max-w-md w-full flex h-screen  flex-col space-y-4">
 
@@ -147,7 +147,7 @@ const Chat = () => {
                             <div className="py-3 px-4">
                                 <h2 className="text-lg font-semibold mb-2">People Online</h2>
                                 <ul className="space-y-2 max-h-32 overflow-y-auto">
-                                    {list.map((x) => {
+                                    {list.length > 0 && list.map((x) => {
                                         return (
                                             <li key={x} className="flex items-center">
                                                 <div className="bg-green-500 rounded-full h-3 w-3 mr-2"></div>
@@ -160,6 +160,29 @@ const Chat = () => {
                                 </ul>
                             </div>
                         </div>
+
+                        <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+    <div className="py-3 px-4">
+        <h2 className="text-lg font-semibold mb-2">Image Carousel</h2>
+        <div className="max-h-32 overflow-x-auto">
+            <div className="flex space-x-2">
+                {/* Add your image items here */}
+                <div className="w-64 h-32 flex-shrink-0">
+                    <img src={img} alt="Image 1" className="w-full h-full object-cover" />
+                </div>
+                <div className="w-64 h-32 flex-shrink-0">
+                    <img src={img} alt="Image 2" className="w-full h-full object-cover" />
+                </div>
+                <div className="w-64 h-32 flex-shrink-0">
+                    <img src={img} alt="Image 3" className="w-full h-full object-cover" />
+                </div>
+                {/* Add more image items here */}
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 
                         {/* Chat Box */}
