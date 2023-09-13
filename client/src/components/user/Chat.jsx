@@ -251,7 +251,7 @@ const Chat = () => {
     
     if (remoteStream) {
       for (const track of remoteStream.getTracks()) {
-        peer.peer.addTrack(track, remoteStream[0]);
+        peer.peer.addTrack(track, remoteStream);
       }
       console.log("streaming")
     console.log(remoteStream)
