@@ -63,7 +63,7 @@ const Chat = () => {
     }
 
     const handleCall = async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: true })
         const offer = await peer.getOffer()
         setMyStream(stream)
     }
@@ -169,7 +169,7 @@ const Chat = () => {
   const handleCallUser = useCallback(async () => {
     setCams(true)
     const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
+      audio: false,
       video: true,
     });
     const offer = await peer.getOffer();
@@ -181,7 +181,7 @@ const Chat = () => {
     async ({ from, offer }) => {
       setRemoteSocketId(from);
       const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
+        audio: false,
         video: true,
       });
       setMyStream(stream);
