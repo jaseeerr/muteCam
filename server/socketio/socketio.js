@@ -24,7 +24,7 @@ module.exports = function (server) {
       socketidToEmailMap.set(socket.id, email);
       socket.to(room).emit("user:joined", { email, id: socket.id });
       socket.join(room);
-      socket.to(socket.id).emit("room:join", data);
+      socket.to(data.room).emit("room:join", data);
       socket.to(data.room).emit('user_online',email)
     });
     // socket.on("join_room", (data) => {
