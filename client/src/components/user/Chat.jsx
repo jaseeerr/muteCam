@@ -187,7 +187,8 @@ const Chat = () => {
             video: true,
           });
       } catch (error) {
-        
+        console.log(error)
+        console.log("err from point")
       }
       setMyStream(stream);
       console.log(`Incoming Call`, from, offer);
@@ -246,6 +247,13 @@ const Chat = () => {
   }, []);
 
  
+  useEffect(() => {
+    if (remoteStream) {
+      for (const track of remoteStream.getTracks()) {
+        peer.peer.addTrack(track, remoteStream);
+      }
+    }
+  }, [remoteStream]);
 
   useEffect(() => {
     socket.on("user:joined", handleUserJoined);
