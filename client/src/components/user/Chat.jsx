@@ -243,20 +243,12 @@ const Chat = () => {
       const remoteStream = ev.streams;
       console.log("GOT TRACKS!!");
       setRemoteStream(remoteStream[0]);
+      console.log(remoteStream)
     });
   }, []);
 
  
-  useEffect(() => {
-    
-    if (remoteStream) {
-        for (const track of remoteStream.getTracks()) {
-          peer.peer.addTrack(track, remoteStream);
-        }
-        console.log("Streaming");
-        console.log(remoteStream);
-      }
-  }, [remoteStream]);
+  
 
   useEffect(() => {
     socket.on("user:joined", handleUserJoined);
