@@ -209,7 +209,7 @@ const Chat = () => {
     ({ from, ans }) => {
       peer.setLocalDescription(ans);
       console.log("Call Accepted!");
-      sendStreams();
+       sendStreams()
     },
     [sendStreams]
   );
