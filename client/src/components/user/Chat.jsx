@@ -1,16 +1,19 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef,useCallback } from 'react';
 import toast, { Toaster } from 'react-hot-toast'
 import { SOCKET_URL } from '../../config/urls';
 import io from 'socket.io-client'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane, faFaceSmile, faPhone } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faFaceSmile, faCameraRetro } from '@fortawesome/free-solid-svg-icons';
 import Picker from '@emoji-mart/react'
 import ReactPlayer from "react-player"
+import peer from "../../services/peer";
+
 import ScrollToBottom from "react-scroll-to-bottom"
-import peer from '../../services/peer';
+import Cam from "./Cam"
+// import peer from '../../services/peer';
 const socket = io.connect(SOCKET_URL)
-const img = "https://th.bing.com/th/id/OIG.lVXjWwlHyIo4QdjnC1YE"
+
 const Chat = () => {
 
 
@@ -24,9 +27,14 @@ const Chat = () => {
     const [messages, setMessages] = useState([])
     const [currentMessage, setCurrentMessage] = useState('')
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-    const [myStream, setMyStream] = useState(null)
-    const messagesEndRef = useRef(null);
+    const [cams,setCams] = useState(true)
+
+    const myVideo = document.createElement('video')
+    const videoGrid = document.getElementById('video-grid')
+    myVideo.muted = true
+   
     // functions
+  
     const joinRoom = () => {
         localStorage.setItem('Uname', name)
 
@@ -35,8 +43,12 @@ const Chat = () => {
         }
         else {
 
-            socket.emit("join_room", { room: id, user: name })
-            // setList((prevList) => [...prevList, name]);
+
+            socket.emit("room:join", { email:name, room:id });
+
+          
+
+            
             setClear(true)
         }
 
@@ -133,54 +145,203 @@ const Chat = () => {
 
     }, [socket])
 
+
+
+
+
+    // for cam
+    const [remoteSocketId, setRemoteSocketId] = useState(null);
+  const [myStream, setMyStream] = useState();
+  const [remoteStream, setRemoteStream] = useState();
+
+  const handleUserJoined = useCallback(({ name, id }) => {
+    console.log(`Email ${name} joined room`);
+   
+
+    // setTimeout(()=>{
+    //     handleCallUser()
+    // },500)
+  
+    
+    setRemoteSocketId(id);
+  }, []);
+
+  const handleCallUser = useCallback(async () => {
+    setCams(true)
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: true,
+    });
+    const offer = await peer.getOffer();
+    socket.emit("user:call", { to: remoteSocketId, offer });
+    setMyStream(stream);
+  }, [remoteSocketId, socket]);
+
+  const handleIncommingCall = useCallback(
+    async ({ from, offer }) => {
+      setRemoteSocketId(from);
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: true,
+      });
+      setMyStream(stream);
+      console.log(`Incoming Call`, from, offer);
+      const ans = await peer.getAnswer(offer);
+      socket.emit("call:accepted", { to: from, ans });
+    },
+    [socket]
+  );
+
+  const sendStreams = useCallback(() => {
+    for (const track of myStream.getTracks()) {
+      peer.peer.addTrack(track, myStream);
+    }
+  }, [myStream]);
+
+  const handleCallAccepted = useCallback(
+    ({ from, ans }) => {
+      peer.setLocalDescription(ans);
+      console.log("Call Accepted!");
+      sendStreams();
+    },
+    [sendStreams]
+  );
+
+  const handleNegoNeeded = useCallback(async () => {
+    const offer = await peer.getOffer();
+    socket.emit("peer:nego:needed", { offer, to: remoteSocketId });
+  }, [remoteSocketId, socket]);
+
+  useEffect(() => {
+    peer.peer.addEventListener("negotiationneeded", handleNegoNeeded);
+    return () => {
+      peer.peer.removeEventListener("negotiationneeded", handleNegoNeeded);
+    };
+  }, [handleNegoNeeded]);
+
+  const handleNegoNeedIncomming = useCallback(
+    async ({ from, offer }) => {
+      const ans = await peer.getAnswer(offer);
+      socket.emit("peer:nego:done", { to: from, ans });
+    },
+    [socket]
+  );
+
+  const handleNegoNeedFinal = useCallback(async ({ ans }) => {
+    await peer.setLocalDescription(ans);
+  }, []);
+
+  useEffect(() => {
+  
+    peer.peer.addEventListener("track", async (ev) => {
+      const remoteStream = ev.streams;
+      console.log("GOT TRACKS!!");
+      setRemoteStream(remoteStream[0]);
+    });
+  }, []);
+
+ 
+
+  useEffect(() => {
+    socket.on("user:joined", handleUserJoined);
+    socket.on("incomming:call", handleIncommingCall);
+    socket.on("call:accepted", handleCallAccepted);
+    socket.on("peer:nego:needed", handleNegoNeedIncomming);
+    socket.on("peer:nego:final", handleNegoNeedFinal);
+
+    return () => {
+      socket.off("user:joined", handleUserJoined);
+      socket.off("incomming:call", handleIncommingCall);
+      socket.off("call:accepted", handleCallAccepted);
+      socket.off("peer:nego:needed", handleNegoNeedIncomming);
+      socket.off("peer:nego:final", handleNegoNeedFinal);
+    };
+  }, [
+    socket,
+    handleUserJoined,
+    handleIncommingCall,
+    handleCallAccepted,
+    handleNegoNeedIncomming,
+    handleNegoNeedFinal,
+  ]);
+    // for cam ends
     return (
 
         <>
             <Toaster />
             {clear ?
-                <div className="flex justify-center items-center min-h-screen overflow-y-auto bg-gray-900 text-white">
+                <div className="flex justify-center items-center   bg-gray-900 text-white">
 
-                    <div className="max-w-md w-full flex h-screen  flex-col space-y-4">
+                    <div className="max-w-md w-full flex h-full  flex-col space-y-4">
 
                         {/* People Online */}
                         <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
                             <div className="py-3 px-4">
-                                <h2 className="text-lg font-semibold mb-2">People Online</h2>
-                                <ul className="space-y-2 max-h-32 overflow-y-auto">
-                                    {list.length > 0 && list.map((x) => {
-                                        return (
-                                            <li key={x} className="flex items-center">
-                                                <div className="bg-green-500 rounded-full h-3 w-3 mr-2"></div>
-                                                <span>{x}</span>
-                                            </li>
-                                        )
-                                    })}
+                                <span className='flex justify-evenly cursor-pointer'>
+                                <h2 onClick={()=>setCams(false)} className="text-lg font-semibold mb-2">People Online</h2>
+                                <h2 onClick={()=>setCams(true)} className="text-lg font-semibold mb-2">MuteCams</h2>
 
-                                    {/* More online users here */}
-                                </ul>
+                                </span>
+                                {cams ? 
+                               <div className='flex'>
+                                 {/* {remoteSocketId && <button onClick={handleCallUser}>CALL</button>} */}
+  {myStream && (
+        <>
+          
+          <ReactPlayer
+            playing
+            muted
+            height="100px"
+            width="200px"
+            url={myStream}
+          />
+        </>
+      )
+  }
+
+      {remoteStream && (
+        <>
+         
+          <ReactPlayer
+            playing
+            muted
+            height="100px"
+            width="200px"
+            url={remoteStream}
+          />
+        </>
+      )}
+                               </div>
+                             :
+                             <ul className="space-y-2 max-h-32 overflow-y-auto">
+                             {list.length > 0 && list.map((x) => {
+                                 return (
+                                     <li key={x} className="flex items-center">
+                                         <div className="bg-green-500 rounded-full h-3 w-3 mr-2"></div>
+                                         <span>{x}</span>
+                                     </li>
+                                 )
+                             })}
+
+                             {/* More online users here */}
+                         </ul>
+                             }
+                               
                             </div>
                         </div>
 
-                        <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-    <div className="py-3 px-4">
-        <h2 className="text-lg font-semibold mb-2">Image Carousel</h2>
-        <div className="max-h-32 overflow-x-auto">
-            <div className="flex space-x-2">
-                {/* Add your image items here */}
-                <div className="w-64 h-32 flex-shrink-0">
-                    <img src={img} alt="Image 1" className="w-full h-full object-cover" />
-                </div>
-                <div className="w-64 h-32 flex-shrink-0">
-                    <img src={img} alt="Image 2" className="w-full h-full object-cover" />
-                </div>
-                <div className="w-64 h-32 flex-shrink-0">
-                    <img src={img} alt="Image 3" className="w-full h-full object-cover" />
-                </div>
-                {/* Add more image items here */}
-            </div>
-        </div>
+
+                        <div>
+      {/* <h1>Room Page</h1>
+      <h4>{remoteSocketId ? "Connected" : "No one in room"}</h4> */}
+      {/* {myStream && <button onClick={sendStreams}>Send Stream</button>}
+      <br />
+      {remoteSocketId && <button onClick={handleCallUser}>CALL</button>} */}
+      
+    
     </div>
-</div>
+
+                       
 
 
 
@@ -190,9 +351,14 @@ const Chat = () => {
                             {/* Chat Header */}
                             <div className="bg-gray-700 py-3 px-4 flex justify-between items-center">
                                 <h1 className="text-lg font-semibold">Chat Room</h1>
-                                <button className="text-gray-400 hover:text-gray-300">
-                                    <FontAwesomeIcon icon={faPhone} style={{ color: "#ffffff", }} />
+                                {remoteSocketId && 
+                                    <button onClick={handleCallUser} className="text-gray-400 hover:text-gray-300">
+                                        <span className='text-sm font-bold mr-2'>CONNECT</span>
+                                    <FontAwesomeIcon icon={faCameraRetro} style={{"--fa-primary-color": "#ffffff", "--fa-secondary-color": "#000000",}} />
+                                     
                                 </button>
+                                }
+                            
                             </div>
 
                             {/* Chat Messages */}

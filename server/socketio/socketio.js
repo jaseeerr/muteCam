@@ -10,23 +10,33 @@ module.exports = function (server) {
     },
   });
 
-  let rooms = {}
+  const emailToSocketIdMap = new Map();
+  const socketidToEmailMap = new Map();
 
   io.on("connection", (socket) => {
     
     console.log(`user connected ${socket.id}`);
 
     // Join Chat
-    socket.on("join_room", (data) => {
+    socket.on("room:join", (data) => {
+      const { email, room } = data;
+      emailToSocketIdMap.set(email, socket.id);
+      socketidToEmailMap.set(socket.id, email);
+      socket.to(room).emit("user:joined", { email, id: socket.id });
+      socket.join(room);
+      socket.to(socket.id).emit("room:join", data);
+      socket.to(data.room).emit('user_online',email)
+    });
+    // socket.on("join_room", (data) => {
      
     
-      socket.join(data.room);
-       console.log(data)
+    //   socket.join(data.room);
+    //    console.log(data)
   
-      socket.to(data.room).emit('user_online',data.user)
+    //   socket.to(data.room).emit('user_online',data.user)
       
    
-    })
+    // })
 
     // update online
 
@@ -64,6 +74,24 @@ module.exports = function (server) {
 
    
 
+    // web rtc call
+    socket.on("user:call", ({ to, offer }) => {
+      io.to(to).emit("incomming:call", { from: socket.id, offer });
+    });
+  
+    socket.on("call:accepted", ({ to, ans }) => {
+      io.to(to).emit("call:accepted", { from: socket.id, ans });
+    });
+  
+    socket.on("peer:nego:needed", ({ to, offer }) => {
+      console.log("peer:nego:needed", offer);
+      io.to(to).emit("peer:nego:needed", { from: socket.id, offer });
+    });
+  
+    socket.on("peer:nego:done", ({ to, ans }) => {
+      console.log("peer:nego:done", ans);
+      io.to(to).emit("peer:nego:final", { from: socket.id, ans });
+    });
 
 
   
