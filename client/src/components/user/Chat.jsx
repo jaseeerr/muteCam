@@ -250,12 +250,12 @@ const Chat = () => {
   useEffect(() => {
     
     if (remoteStream) {
-      for (const track of remoteStream.getTracks()) {
-        peer.peer.addTrack(track, remoteStream);
+        for (const track of remoteStream.getTracks()) {
+          peer.peer.addTrack(track, remoteStream);
+        }
+        console.log("Streaming");
+        console.log(remoteStream);
       }
-      console.log("streaming")
-    console.log(remoteStream)
-    }
   }, [remoteStream]);
 
   useEffect(() => {
