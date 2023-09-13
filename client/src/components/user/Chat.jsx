@@ -180,10 +180,15 @@ const Chat = () => {
   const handleIncommingCall = useCallback(
     async ({ from, offer }) => {
       setRemoteSocketId(from);
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: true,
-      });
+      let stream
+      try {
+         stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: true,
+          });
+      } catch (error) {
+        
+      }
       setMyStream(stream);
       console.log(`Incoming Call`, from, offer);
       const ans = await peer.getAnswer(offer);
