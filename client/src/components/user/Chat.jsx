@@ -155,6 +155,7 @@ const Chat = () => {
   const [remoteStream, setRemoteStream] = useState();
 
   const handleUserJoined = useCallback(({ name, id }) => {
+    console.log(id,name)
     console.log(`Email ${name} joined room`);
    
 
