@@ -243,7 +243,7 @@ const RoomPage = () => {
                     <span className="flex justify-center">
                     <ReactPlayer
                       playing
-                      muted
+                      
                       height="100px"
                       width="200px"
                       url={myStream}
@@ -261,7 +261,7 @@ const RoomPage = () => {
                    <span className="flex justify-center mt-4">
                     <ReactPlayer
                       playing
-                      muted
+                      
                       height="100px"
                       width="200px"
                       url={remoteStream}
