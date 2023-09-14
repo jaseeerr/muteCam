@@ -208,15 +208,21 @@ const RoomPage = () => {
   useEffect(() => {
     // Add an event listener for the 'beforeunload' event.
     window.addEventListener("beforeunload", handleBeforeUnload);
+    const handleBeforeUnload1 = (event) => {
+      event.preventDefault();
+      event.returnValue = ''; // Prompt message text can be set here
+    };
 
     // Remove the event listener when the component unmounts.
     return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload1);
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
 
   const handleBeforeUnload = () => {
     // Remove the data from localStorage when the page is closed or navigated away.
+
     localStorage.removeItem('Uname');
   };
 
