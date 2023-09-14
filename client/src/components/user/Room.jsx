@@ -7,6 +7,7 @@ import Picker from '@emoji-mart/react'
 import ReactPlayer from "react-player";
 import peer from "../../services/peer";
 import { useSocket } from "../../context/SocketProvider";
+import clearCache from "../../hooks/clearCache";
 
 const RoomPage = () => {
   const socket = useSocket();
@@ -207,6 +208,7 @@ const RoomPage = () => {
 
   useEffect(() => {
     // Add an event listener for the 'beforeunload' event.
+    clearCache()
     window.addEventListener("beforeunload", handleBeforeUnload);
     const handleBeforeUnload1 = (event) => {
       event.preventDefault();
