@@ -10,9 +10,9 @@ class PeerService {
 			  ],
 			},
 			{
-				urls:"mutecam.metered.live",
-				username:"356bd97314dcdf269541f635",
-				credential:"7Q6rD9M8c5cBmSxz"
+				urls:"stun:global.stun.twilio.com:3478",
+				username:"fa0af03346bc17f02fca68c6524d86618650a4f9ec4df9e0a9ef867ac1eb1285",
+				credential:"OLBrIElzKgV7tLzprfvbjOqc695sOfYq+NkdWNsnmKs="
 			}
 		  ],
 		});

@@ -1,0 +1,32 @@
+{
+  "username": "fa0af03346bc17f02fca68c6524d86618650a4f9ec4df9e0a9ef867ac1eb1285",
+  "ice_servers": [
+    {
+      "url": "stun:global.stun.twilio.com:3478",
+      "urls": "stun:global.stun.twilio.com:3478"
+    },
+    {
+      "url": "turn:global.turn.twilio.com:3478?transport=udp",
+      "username": "fa0af03346bc17f02fca68c6524d86618650a4f9ec4df9e0a9ef867ac1eb1285",
+      "urls": "turn:global.turn.twilio.com:3478?transport=udp",
+      "credential": "OLBrIElzKgV7tLzprfvbjOqc695sOfYq+NkdWNsnmKs="
+    },
+    {
+      "url": "turn:global.turn.twilio.com:3478?transport=tcp",
+      "username": "fa0af03346bc17f02fca68c6524d86618650a4f9ec4df9e0a9ef867ac1eb1285",
+      "urls": "turn:global.turn.twilio.com:3478?transport=tcp",
+      "credential": "OLBrIElzKgV7tLzprfvbjOqc695sOfYq+NkdWNsnmKs="
+    },
+    {
+      "url": "turn:global.turn.twilio.com:443?transport=tcp",
+      "username": "fa0af03346bc17f02fca68c6524d86618650a4f9ec4df9e0a9ef867ac1eb1285",
+      "urls": "turn:global.turn.twilio.com:443?transport=tcp",
+      "credential": "OLBrIElzKgV7tLzprfvbjOqc695sOfYq+NkdWNsnmKs="
+    }
+  ],
+  "date_updated": "Thu, 14 Sep 2023 22:02:37 +0000",
+  "account_sid": "ACcf1b329eb30314a626e8013bdfefeaba",
+  "ttl": "86400",
+  "date_created": "Thu, 14 Sep 2023 22:02:37 +0000",
+  "password": "OLBrIElzKgV7tLzprfvbjOqc695sOfYq+NkdWNsnmKs="
+}
