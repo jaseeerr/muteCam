@@ -1,12 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import { SocketProvider } from "./src/context/SocketProvider";
 
 import Err from "./src/components/user/error";
-import Chat from "./src/pages/user/Chat";
-import Home from "./src/components/user/Home";
-import Call from "./src/components/user/Call";
-
+import LobbyScreen from "./src/components/user/Lobby"
+import RoomPage from "./src/components/user/Room";
 const UserLayout = ()=>{
 
     
@@ -14,11 +13,11 @@ const UserLayout = ()=>{
 
     return(
         <>
-      
+       <SocketProvider>
       <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white">
       <Outlet/>
       </div>
-      
+      </SocketProvider>
       
         </>
     )
@@ -36,20 +35,16 @@ const AppRouter = createBrowserRouter([
         children:[
             {
                 path:"/",
-                element:<Home/>
+                element:<LobbyScreen/>
 
             },
             {
-                path:"/talk/:id",
-                element:<Chat/>
+                path:"/room/:id",
+                element:<RoomPage/>
 
             },
 
-            {
-                path:"/call/:id",
-                element:<Call/>
-
-            }
+            
            
             
         ]
